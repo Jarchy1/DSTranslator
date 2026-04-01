@@ -3,34 +3,110 @@ console.log('%c[DiscordTranslator] 🚀 Engine V7 (HTTP Network Engine) Attivo!'
 
 const DT_LANGUAGES = [
     { code: 'auto', name: 'Rilevamento Automatico' },
-    { code: 'it', name: 'Italiano' },
-    { code: 'en', name: 'Inglese' },
-    { code: 'es', name: 'Spagnolo' },
-    { code: 'fr', name: 'Francese' },
-    { code: 'de', name: 'Tedesco' },
-    { code: 'pt', name: 'Portoghese' },
-    { code: 'ru', name: 'Russo' },
+    { code: 'af', name: 'Afrikaans' },
+    { code: 'sq', name: 'Albanese' },
+    { code: 'am', name: 'Amarico' },
+    { code: 'ar', name: 'Arabo' },
+    { code: 'hy', name: 'Armeno' },
+    { code: 'az', name: 'Azerbaigiano' },
+    { code: 'eu', name: 'Basco' },
+    { code: 'bn', name: 'Bengalese' },
+    { code: 'be', name: 'Bielorusso' },
+    { code: 'my', name: 'Birmano' },
+    { code: 'bs', name: 'Bosniaco' },
+    { code: 'bg', name: 'Bulgaro' },
+    { code: 'km', name: 'Cambogiano' },
+    { code: 'ca', name: 'Catalano' },
+    { code: 'ceb', name: 'Cebuano' },
+    { code: 'cs', name: 'Ceco' },
+    { code: 'ny', name: 'Chichewa' },
     { code: 'zh-CN', name: 'Cinese (Semplificato)' },
     { code: 'zh-TW', name: 'Cinese (Tradizionale)' },
-    { code: 'ja', name: 'Giapponese' },
     { code: 'ko', name: 'Coreano' },
-    { code: 'ar', name: 'Arabo' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'nl', name: 'Olandese' },
-    { code: 'tr', name: 'Turco' },
-    { code: 'pl', name: 'Polacco' },
-    { code: 'sv', name: 'Svedese' },
+    { code: 'co', name: 'Corso' },
+    { code: 'ht', name: 'Creolo Haitiano' },
+    { code: 'hr', name: 'Croato' },
+    { code: 'ku', name: 'Curdo (Kurmanji)' },
     { code: 'da', name: 'Danese' },
-    { code: 'fi', name: 'Finlandese' },
-    { code: 'no', name: 'Norvegese' },
-    { code: 'cs', name: 'Ceco' },
-    { code: 'el', name: 'Greco' },
     { code: 'he', name: 'Ebraico' },
-    { code: 'th', name: 'Tailandese' },
-    { code: 'vi', name: 'Vietnamita' },
+    { code: 'eo', name: 'Esperanto' },
+    { code: 'et', name: 'Estone' },
+    { code: 'fi', name: 'Finlandese' },
+    { code: 'fr', name: 'Francese' },
+    { code: 'fy', name: 'Frisone' },
+    { code: 'gd', name: 'Gaelico Scozzese' },
+    { code: 'gl', name: 'Galiziano' },
+    { code: 'cy', name: 'Gallese' },
+    { code: 'ka', name: 'Georgiano' },
+    { code: 'ja', name: 'Giapponese' },
+    { code: 'jv', name: 'Giavanese' },
+    { code: 'el', name: 'Greco' },
+    { code: 'gu', name: 'Gujarati' },
+    { code: 'ha', name: 'Hausa' },
+    { code: 'haw', name: 'Hawaiano' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'hmn', name: 'Hmong' },
+    { code: 'ig', name: 'Igbo' },
     { code: 'id', name: 'Indonesiano' },
+    { code: 'en', name: 'Inglese' },
+    { code: 'ga', name: 'Irlandese' },
+    { code: 'is', name: 'Islandese' },
+    { code: 'it', name: 'Italiano' },
+    { code: 'kn', name: 'Kannada' },
+    { code: 'kk', name: 'Kazako' },
+    { code: 'ky', name: 'Kirghiso' },
+    { code: 'lo', name: 'Lao' },
+    { code: 'la', name: 'Latino' },
+    { code: 'lv', name: 'Lettone' },
+    { code: 'lt', name: 'Lituano' },
+    { code: 'lb', name: 'Lussemburghese' },
+    { code: 'mk', name: 'Macedone' },
+    { code: 'ml', name: 'Malayalam' },
+    { code: 'ms', name: 'Malese' },
+    { code: 'mg', name: 'Malgascio' },
+    { code: 'mt', name: 'Maltese' },
+    { code: 'mi', name: 'Maori' },
+    { code: 'mr', name: 'Marathi' },
+    { code: 'mn', name: 'Mongolo' },
+    { code: 'ne', name: 'Nepalese' },
+    { code: 'no', name: 'Norvegese' },
+    { code: 'nl', name: 'Olandese' },
+    { code: 'ps', name: 'Pashto' },
+    { code: 'fa', name: 'Persiano' },
+    { code: 'pl', name: 'Polacco' },
+    { code: 'pt', name: 'Portoghese' },
+    { code: 'pa', name: 'Punjabi' },
+    { code: 'ro', name: 'Rumeno' },
+    { code: 'ru', name: 'Russo' },
+    { code: 'sm', name: 'Samoano' },
+    { code: 'sr', name: 'Serbo' },
+    { code: 'st', name: 'Sesotho' },
+    { code: 'sn', name: 'Shona' },
+    { code: 'sd', name: 'Sindhi' },
+    { code: 'si', name: 'Singalese' },
+    { code: 'sk', name: 'Slovacco' },
+    { code: 'sl', name: 'Sloveno' },
+    { code: 'so', name: 'Somalo' },
+    { code: 'es', name: 'Spagnolo' },
+    { code: 'su', name: 'Sundanese' },
+    { code: 'sv', name: 'Svedese' },
+    { code: 'sw', name: 'Swahili' },
+    { code: 'tg', name: 'Tagiko' },
+    { code: 'tl', name: 'Tagalog' },
+    { code: 'th', name: 'Tailandese' },
+    { code: 'ta', name: 'Tamil' },
+    { code: 'de', name: 'Tedesco' },
+    { code: 'te', name: 'Telugu' },
+    { code: 'tr', name: 'Turco' },
     { code: 'uk', name: 'Ucraino' },
-    { code: 'ro', name: 'Rumeno' }
+    { code: 'ug', name: 'Uiguro' },
+    { code: 'ur', name: 'Urdu' },
+    { code: 'uz', name: 'Uzbeco' },
+    { code: 'vi', name: 'Vietnamita' },
+    { code: 'xh', name: 'Xhosa' },
+    { code: 'yi', name: 'Yiddish' },
+    { code: 'yo', name: 'Yoruba' },
+    { code: 'zu', name: 'Zulu' }
 ];
 
 const DEFAULT_CONFIG = {
@@ -250,6 +326,20 @@ dtStyle.textContent = `
     .dt-custom-select-options::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 4px; }
     .dt-custom-select-options::-webkit-scrollbar-thumb:hover { background: #80848e; }
     
+    /* Motore di Ricerca Dropdown */
+    .dt-custom-search-container {
+        padding: 4px 6px; border-bottom: 1px solid rgba(255,255,255,0.05);
+        position: sticky; top: -6px; background: #2b2d31; z-index: 2; margin-bottom: 4px;
+    }
+    .dt-custom-search {
+        width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+        color: #dbdee1; border-radius: 6px; padding: 8px 12px 8px 32px; font-family: inherit; font-size: 13px;
+        outline: none; transition: border-color 0.2s;
+    }
+    .dt-custom-search::placeholder { color: #80848e; }
+    .dt-custom-search:focus { border-color: #5865F2; }
+    .dt-search-icon { position: absolute; left: 14px; top: 12px; width: 14px; height: 14px; color: #80848e; pointer-events: none; }
+    
     /* Animazioni Fluorescenti Switch Toggles */
     .dt-switch { position: relative; display: inline-block; width: 46px; height: 26px; }
     .dt-switch input { opacity: 0; width: 0; height: 0; }
@@ -368,7 +458,8 @@ function buildModalUI(isFirstRun = false) {
     overlay.className = 'dt-modal-overlay';
     overlay.id = 'dt-modal-root';
     
-    const langOptions = DT_LANGUAGES.map(l => `<option value="${l.code}">${l.name}</option>`).join('');
+    const langOptionsIn = DT_LANGUAGES.map(l => `<option value="${l.code}">${l.name}</option>`).join('');
+    const langOptionsOut = DT_LANGUAGES.filter(l => l.code !== 'auto').map(l => `<option value="${l.code}">${l.name}</option>`).join('');
     
     overlay.innerHTML = `
         <div class="dt-modal">
@@ -397,7 +488,7 @@ function buildModalUI(isFirstRun = false) {
                 
                 <div class="dt-form-group">
                     <label>Lingua Destinazione (Lettura):</label>
-                    <div class="dt-select-wrapper"><select class="dt-select" id="dt-in-lang">${langOptions}</select></div>
+                    <div class="dt-select-wrapper"><select class="dt-select" id="dt-in-lang">${langOptionsIn}</select></div>
                 </div>
                 <div class="dt-form-group">
                     <label>Stile Visualizzazione Grafica:</label>
@@ -426,7 +517,7 @@ function buildModalUI(isFirstRun = false) {
                 </div>
                 <div class="dt-form-group">
                     <label>Lingua Destinazione (Scrittura):</label>
-                    <div class="dt-select-wrapper"><select class="dt-select" id="dt-out-lang">${langOptions}</select></div>
+                    <div class="dt-select-wrapper"><select class="dt-select" id="dt-out-lang">${langOptionsOut}</select></div>
                 </div>
             </div>
 
@@ -497,6 +588,32 @@ function openSettingsModal(isFirstRun = false) {
         const optsContainer = document.createElement('div');
         optsContainer.className = 'dt-custom-select-options';
         
+        const searchContainer = document.createElement('div');
+        searchContainer.className = 'dt-custom-search-container';
+        
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'dt-custom-search';
+        searchInput.placeholder = 'Cerca lingua...';
+        
+        const searchIconSVG = `<svg class="dt-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+        searchContainer.innerHTML = searchIconSVG;
+        searchContainer.appendChild(searchInput);
+        
+        searchInput.addEventListener('click', (e) => e.stopPropagation());
+        searchInput.addEventListener('input', (e) => {
+             const filter = e.target.value.toLowerCase();
+             optsContainer.querySelectorAll('.dt-custom-option').forEach(opt => {
+                 if(opt.innerText.toLowerCase().includes(filter)) {
+                     opt.style.display = 'block';
+                 } else {
+                     opt.style.display = 'none';
+                 }
+             });
+        });
+        
+        optsContainer.appendChild(searchContainer);
+        
         Array.from(originalSelect.options).forEach(opt => {
             const optDiv = document.createElement('div');
             optDiv.className = 'dt-custom-option' + (opt.selected ? ' selected' : '');
@@ -509,6 +626,9 @@ function openSettingsModal(isFirstRun = false) {
                 optDiv.classList.add('selected');
                 wrapper.classList.remove('open');
                 originalSelect.dispatchEvent(new Event('change'));
+                
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
             };
             optsContainer.appendChild(optDiv);
         });
@@ -527,6 +647,11 @@ function openSettingsModal(isFirstRun = false) {
             if (parentCard) {
                 parentCard.style.zIndex = isOpen ? '1000' : '1';
                 parentCard.style.position = 'relative';
+            }
+            if (isOpen) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                setTimeout(() => searchInput.focus(), 50);
             }
         };
         
