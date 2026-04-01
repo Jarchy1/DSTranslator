@@ -1,0 +1,20 @@
+{
+  "name": "native-translator-discord",
+  "version": "7.0.0",
+  "description": "Zero-Trust HTTP Interceptor Translator for Discord Desktop Core",
+  "main": "engine.js",
+  "scripts": {
+    "start": "node install.js",
+    "install-mod": "node install.js"
+  },
+  "keywords": [
+    "discord",
+    "translator",
+    "injection",
+    "zero-trust",
+    "electron",
+    "network"
+  ],
+  "author": "Jarchy",
+  "license": "MIT"
+}
