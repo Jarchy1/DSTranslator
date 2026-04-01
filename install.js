@@ -66,9 +66,9 @@ if (!fs.existsSync(path.join(__dirname, 'bypass.js'))) {
 const injectionString = `require('${bypassPath}');\n`;
 let indexJsContent = fs.readFileSync(indexPath, 'utf8');
 
-// Puliamo eventuali vecchie installazioni del traduttore prima di inserire la nuova per evitare cloni doppi
+// Puliamo eventuali vecchie installazioni del traduttore (inclusi vecchi formati e mod esterne) prima di inserire la nuova per evitare cloni doppi
 if (indexJsContent.includes(`require('`)) {
-    indexJsContent = indexJsContent.split('\n').filter(line => !line.includes('bypass.js') && !line.includes('bridge.js')).join('\n');
+    indexJsContent = indexJsContent.split('\n').filter(line => !line.includes('bypass.js') && !line.includes('bridge.js') && !line.includes('discordlate.js')).join('\n');
 }
 
 // Iniezione All'inizio del file target (Zero-Trust Injection)

@@ -58,10 +58,10 @@ const indexPath = path.join(corePath, 'index.js');
 let indexJsContent = fs.readFileSync(indexPath, 'utf8');
 
 // Verifichiamo se l'iniezione è presente nel file core di Discord
-if (indexJsContent.includes('bypass.js') || indexJsContent.includes('bridge.js')) {
-    // Rimuoviamo SOLO ed ESCLUSIVAMENTE la nostra riga di require, lasciando intatto l'originale
+if (indexJsContent.includes('bypass.js') || indexJsContent.includes('bridge.js') || indexJsContent.includes('discordlate.js')) {
+    // Rimuoviamo SOLO ed ESCLUSIVAMENTE la nostra riga di require (o di progetti vecchi affini), lasciando intatto l'originale
     indexJsContent = indexJsContent.split('\n')
-                                   .filter(line => !line.includes('bypass.js') && !line.includes('bridge.js'))
+                                   .filter(line => !line.includes('bypass.js') && !line.includes('bridge.js') && !line.includes('discordlate.js'))
                                    .join('\n');
     
     try {
