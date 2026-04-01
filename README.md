@@ -40,6 +40,16 @@ Passandoci sopra capirai istantaneamente le loro funzioni:
 *   **Click Destro:** Apre la plancia delle impostazioni e delle lingue integrata sotto forma di popup vetrato immersivo.
 *   **Alt+Click:** Disattiva Tutto Modalità Master (disponibile abilitando l'easter egg nel codice).
 
+## 🗑️ Disinstallazione e Ripristino
+Se desideri eliminare definitivamente la Mod dal tuo computer e riportare il client testuale di Discord al suo stato nativo, puoi lanciare in modo automatizzato la routine di espulsione in Node.
+
+Dalla cartella della repository, apri il prompt ed esegui:
+```bash
+node uninstall.js
+```
+Questo comando distruggerà i ponti tra la mod e il bootloader asar di Discord originale senza corromperlo.
+A questo punto puoi tranquillamente cestinare del tutto questa cartella DiscordTranslator dal tuo computer!
+
 ## ⚠️ Disclaimer e Sicurezza
 La modifica non autorizzata del client desktop Discord (anche tramite file protetti erogati solo localmente) viola tecnicamente i **Termini di Servizio (ToS)** di Discord. Questa mod è dichiaratamente "Zero-Trust": nessun dato dell'utente, password o token viene loggato, estratto o inviato a server di terze parti (il codice sorgente è interamente ispezionabile dal vivo per comprovarlo). 
 

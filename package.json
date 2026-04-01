@@ -5,7 +5,8 @@
   "main": "engine.js",
   "scripts": {
     "start": "node install.js",
-    "install-mod": "node install.js"
+    "install-mod": "node install.js",
+    "uninstall": "node uninstall.js"
   },
   "keywords": [
     "discord",
