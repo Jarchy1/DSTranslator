@@ -66,12 +66,12 @@ if (indexJsContent.includes('bypass.js') || indexJsContent.includes('bridge.js')
     
     try {
         fs.writeFileSync(indexPath, indexJsContent);
-        console.log("✅ SUCCESSO! NativeTranslator è stato estirpato chirurgicamente dal file di blocco.");
+        console.log("✅ SUCCESSO! DSTranslator è stato estirpato chirurgicamente dal file di blocco.");
         console.log("🛠️ Discord è stato ripristinato al suo stato ORIGINARIO (Vanilla).");
         console.log("⚠️ Chiudi completamente Discord (anche in basso a destra su Windows) e riaprilo per completare la rimozione.\n");
     } catch (writeErr) {
         console.error("❌ ERRORE GRAVE: Permessi insufficienti per scrivere nel file index.js (Chiudi Discord per non fargli bloccare i file).", writeErr);
     }
 } else {
-    console.log("🤷‍♂️ NESSUNA AZIONE ESEGUITA: NativeTranslator non risulta attualmente agganciato al modulo principale di questa versione di Discord.\n");
+    console.log("🤷‍♂️ NESSUNA AZIONE ESEGUITA: DSTranslator non risulta attualmente agganciato al modulo principale di questa versione di Discord.\n");
 }

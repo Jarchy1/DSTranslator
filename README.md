@@ -1,6 +1,6 @@
-# NativeTranslator per Discord
+# DSTranslator per Discord
 
-NativeTranslator è una potentissima mod "Zero-Trust" e Open-Source che si inietta nativamente all'interno di Discord per fornire una traduzione in tempo reale sia in Entrata (lettura) che in Uscita (scrittura), senza bisogno di server intermedi. 
+DSTranslator è una potentissima mod "Zero-Trust" e Open-Source che si inietta nativamente all'interno di Discord per fornire una traduzione in tempo reale sia in Entrata (lettura) che in Uscita (scrittura), senza bisogno di server intermedi. 
 
 A differenza di altre estensioni che usano metodi instabili con React, questa mod usa un **Network HTTP Interceptor** a basso livello intercettando le vere chiare chiamate Web (XMLHttpRequest e Fetch API) prima che raggiungano i server Discord, garantendo zero crash e velocità istantanea.
 
