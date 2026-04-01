@@ -52,6 +52,7 @@ function loadConfig() {
 }
 
 function saveConfig(cfg) {
+    const oldReadMode = globalConfig ? globalConfig.readMode : undefined;
     globalConfig = cfg;
     try {
         if (typeof localStorage !== 'undefined') {
@@ -59,6 +60,10 @@ function saveConfig(cfg) {
         }
     } catch(e) {}
     updateUIState();
+    
+    if (oldReadMode !== undefined && oldReadMode !== cfg.readMode && typeof refreshAllTranslationsStyle === 'function') {
+        refreshAllTranslationsStyle();
+    }
 }
 
 let globalConfig = loadConfig();
@@ -175,44 +180,88 @@ dtStyle.textContent = `
     
     /* Effetto Vetro (Glassmorphism) e Entrata Animata del Menu */
     .dt-modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0, 0, 0, 0.6); z-index: 10000;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4); z-index: 10000;
         display: none; align-items: center; justify-content: center;
-        backdrop-filter: blur(4px); /* Effetto sfocatura sfondo */
-        animation: dt-fade-in 0.2s ease-out;
+        backdrop-filter: blur(8px); /* Blur morbido MacOS */
+        animation: dt-fade-in 0.25s ease-out;
     }
     .dt-modal {
-        background: #313338; color: #dbdee1; border-radius: 12px; width: 440px; padding: 24px;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.5); font-family: 'gg sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        animation: dt-pop-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(30,31,34, 0.85); /* Trasparenza Acrilica */
+        backdrop-filter: blur(32px) saturate(150%);
+        color: #dbdee1; border-radius: 16px; width: 440px; padding: 28px;
+        box-shadow: 0 24px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset;
+        font-family: 'gg sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        animation: dt-pop-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
     }
     
     @keyframes dt-fade-in { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes dt-pop-up { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    @keyframes dt-pop-up { from { transform: scale(0.95) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
-    .dt-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .dt-modal-header h2 { margin: 0; color: #f2f3f5; font-size: 20px; font-weight: 800; }
-    .dt-close-icon { cursor: pointer; color: #80848e; transition: color 0.2s, transform 0.2s; }
-    .dt-close-icon:hover { color: #f2f3f5; transform: rotate(90deg); }
+    .dt-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .dt-modal-header h2 { margin: 0; color: #f2f3f5; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .dt-badge { background: linear-gradient(135deg, #5865F2, #c7a7ff); -webkit-background-clip: text; color: transparent; font-size: 14px; padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(88, 101, 242, 0.3); font-weight: 900; }
+    .dt-close-icon { cursor: pointer; color: #80848e; transition: color 0.2s, transform 0.2s; background: rgba(255,255,255,0.03); border-radius: 50%; padding: 6px; display: flex; }
+    .dt-close-icon:hover { color: #f2f3f5; transform: rotate(90deg); background: rgba(242, 63, 67, 0.2); color: #f23f43; }
     
-    .dt-form-group { margin-bottom: 20px; }
-    .dt-form-group label { display: block; font-size: 12px; font-weight: 700; color: #b5bac1; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .dt-select {
-        background: #1e1f22; color: #dbdee1; border: 1px solid #1e1f22; border-radius: 6px; padding: 12px; width: 100%;
-        font-family: inherit; font-size: 14px; outline: none; cursor: pointer; transition: border-color 0.2s;
+    /* Sistema Layout "Cards" stile Apple/Discord Premium */
+    .dt-card { background: rgba(43,45,49, 0.5); border: 1px solid rgba(255,255,255,0.02); border-radius: 12px; padding: 18px; margin-bottom: 20px; transition: transform 0.2s ease, background 0.2s ease; }
+    .dt-card:hover { transform: translateY(-2px); background: rgba(43,45,49, 0.8); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+    
+    .dt-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .dt-card-title { display: flex; gap: 12px; align-items: center; }
+    .dt-icon-box { background: rgba(255,255,255,0.03); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.02); }
+    
+    .dt-card-text h3 { margin: 0 0 4px 0; font-size: 16px; color: #f2f3f5; font-weight: 700; }
+    .dt-card-text p { margin: 0; font-size: 12px; color: #949ba4; font-weight: 500; line-height: 1.3; }
+    
+    .dt-form-group { margin-top: 16px; }
+    .dt-form-group label { display: block; font-size: 11px; font-weight: 800; color: #80848e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.8px; }
+    
+    .dt-select-wrapper { position: relative; }
+    .dt-select { display: none; } /* Nascondiamo la Select Originale di Window/Mac */
+
+    /* Custom Modern Select Dropdowns (Stile Nitro) */
+    .dt-custom-select { position: relative; user-select: none; width: 100%; }
+    .dt-custom-select-trigger { 
+        display: flex; justify-content: space-between; align-items: center;
+        background: #1e1f22; color: #dbdee1; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px 14px; 
+        font-family: inherit; font-size: 14px; cursor: pointer; transition: all 0.2s ease; 
     }
-    .dt-select:focus { border-color: #5865F2; }
+    .dt-custom-select-trigger:hover { background: #232428; border-color: rgba(255,255,255,0.08); }
+    .dt-custom-select.open .dt-custom-select-trigger { border-color: #5865F2; box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.15); }
+    .dt-custom-select-trigger svg { transition: transform 0.2s ease; width: 18px; height: 18px; fill: #b5bac1; }
+    .dt-custom-select.open .dt-custom-select-trigger svg { transform: rotate(180deg); }
     
-    .dt-toggle-group { display: flex; justify-content: space-between; align-items: center; background: #2b2d31; border-radius: 8px; padding: 14px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.02); }
-    .dt-toggle-label { font-size: 15px; font-weight: 600; color: #f2f3f5; }
+    .dt-custom-select-options {
+        position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 100;
+        background: #2b2d31; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.5); padding: 6px; display: none;
+        max-height: 220px; overflow-y: auto; pointer-events: none; opacity: 0;
+        transition: opacity 0.2s, transform 0.2s; transform: translateY(-10px);
+    }
+    .dt-custom-select.open .dt-custom-select-options { display: block; pointer-events: auto; opacity: 1; transform: translateY(0); }
     
-    .dt-switch { position: relative; display: inline-block; width: 44px; height: 26px; }
+    .dt-custom-option { padding: 10px 12px; color: #dbdee1; font-size: 14px; cursor: pointer; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+    .dt-custom-option:hover { background: #4752C4; color: #fff; }
+    .dt-custom-option.selected { background: rgba(88, 101, 242, 0.2); color: #5865F2; font-weight: bold; }
+    .dt-custom-select-options::-webkit-scrollbar { width: 6px; }
+    .dt-custom-select-options::-webkit-scrollbar-track { background: transparent; }
+    .dt-custom-select-options::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 4px; }
+    .dt-custom-select-options::-webkit-scrollbar-thumb:hover { background: #80848e; }
+    
+    /* Animazioni Fluorescenti Switch Toggles */
+    .dt-switch { position: relative; display: inline-block; width: 46px; height: 26px; }
     .dt-switch input { opacity: 0; width: 0; height: 0; }
-    .dt-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #80848e; transition: .3s; border-radius: 26px; }
-    .dt-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    input:checked + .dt-slider { background-color: #23a559; }
-    input:checked + .dt-slider:before { transform: translateX(18px); }
+    .dt-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #80848e; transition: .4s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-radius: 26px; border: 1px solid rgba(0,0,0,0.2); }
+    .dt-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .4s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    input:checked + .dt-slider { background-color: #23a559; border-color: #23a559; box-shadow: 0 0 12px rgba(35, 165, 89, 0.3); }
+    input:checked + .dt-slider:before { transform: translateX(20px); }
+    
+    /* Bottone Primario Start */
+    .dt-start-btn { width: 100%; background: linear-gradient(135deg, #5865F2, #4752C4); color: #fff; border: none; padding: 16px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; transition: transform 0.2s, box-shadow 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .dt-start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(88, 101, 242, 0.3); }
+    .dt-start-btn:active { transform: translateY(0); }
 
     /* --------- STILE SOSTITUZIONE (Modalità Replace) --------- */
     .dt-message-wrapper.dt-show-translation {
@@ -223,44 +272,67 @@ dtStyle.textContent = `
     }
     .dt-message-wrapper .dt-translated-text {
         font-size: 1rem !important; line-height: 1.375rem !important; color: #dbdee1 !important; 
-        font-style: normal; position: relative;
+        font-style: normal; position: relative; display: inline; /* Garantisce il flusso corretto per la linea tratteggiata */
     }
     .dt-message-wrapper.dt-show-translation .dt-translated-text {
-        border-bottom: 1px dashed rgba(88, 101, 242, 0.4);
+        border-bottom: 2px dashed rgba(88, 101, 242, 0.7) !important;
     }
     .dt-message-wrapper.dt-show-original .dt-translated-text {
         display: none !important;
     }
 
-    /* --------- STILE SOTTOTITOLO (Modalità Append) --------- */
+    /* --------- STILE SOTTOTITOLO GRUPPATO (Modalità Append 2026) --------- */
     .dt-message-wrapper.dt-style-append {
-        /* Contenitore Padre */
+        padding-top: 4px;
+        padding-bottom: 4px;
+        font-size: 0.9rem !important;
+        opacity: 0.8;
     }
-    /* Mute all original children but keep them visible and small */
-    .dt-message-wrapper.dt-style-append > *:not(.dt-translated-large):not(.dt-inline-toggle) {
-        font-size: 0.85rem !important;
-        opacity: 0.65;
-        transition: opacity 0.2s;
-    }
-    .dt-message-wrapper.dt-style-append > *:not(.dt-translated-large):not(.dt-inline-toggle):hover {
-        opacity: 0.95;
-    }
-    .dt-message-wrapper.dt-style-append .dt-translated-large {
+    .dt-message-wrapper.dt-style-append::before {
+        content: "ORIGINALE";
         display: block;
-        font-size: 1rem !important;
-        line-height: 1.375rem !important;
-        color: #dbdee1 !important;
-        background: rgba(43, 45, 49, 0.4);
-        padding: 6px 8px;
-        margin-top: 6px;
-        border-radius: 6px;
-        border-top: 1px dashed rgba(255, 255, 255, 0.08);
-        border-left: 2px solid #5865F2;
+        font-size: 9px;
+        color: #80848e;
+        font-weight: 800;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        pointer-events: none;
     }
-    .dt-message-wrapper.dt-style-append.dt-hide-subtitle .dt-translated-large {
+    /* Rimuovi targhetta "ORIGINALE" su messaggi consecutivi */
+    div[class*="message_"]:not([class*="groupStart_"]) .dt-message-wrapper.dt-style-append::before {
         display: none !important;
     }
-
+    
+    /* Box Unificato (Raggruppato in basso) per le Traduzioni di Gruppo */
+    .dt-grouped-translation-box {
+        margin-top: 8px;
+        padding-left: 10px;
+        border-left: 3px solid rgba(88, 101, 242, 0.7);
+        padding-bottom: 2px;
+        font-family: inherit;
+    }
+    .dt-gp-header {
+        font-size: 9px;
+        color: rgba(88, 101, 242, 0.8);
+        font-weight: 800;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        pointer-events: none;
+    }
+    .dt-gp-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .dt-group-t-line {
+        font-size: 1rem;
+        line-height: 1.375rem;
+        color: #dbdee1;
+    }
+    /* Nascondi il toggle occhio quando siamo in modalità Sottotitolo */
+    .dt-message-wrapper.dt-style-append .dt-inline-toggle {
+        display: none !important;
+    }
 
     .dt-inline-toggle {
         display: inline-flex !important; align-items: center; justify-content: center;
@@ -301,46 +373,64 @@ function buildModalUI(isFirstRun = false) {
     overlay.innerHTML = `
         <div class="dt-modal">
             <div class="dt-modal-header">
-                <h2>${isFirstRun ? '🎉 Benvenuto in NativeTranslator!' : '🌐 Traduttore Integrato Network'}</h2>
-                ${!isFirstRun ? `<div class="dt-close-icon" id="dt-close-btn"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z"></path></svg></div>` : ''}
+                <h2><svg width="24" height="24" viewBox="0 0 24 24" style="color: #5865F2; margin-right: 2px;"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.18 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.78 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.91-4.33-3.56zm2.95-8H5.08c1.32-2.14 3.49-3.66 6.07-4.18-.7 1.26-1.25 2.61-1.6 4.03l-1.52.15zM12 19.96c-.83-1.18-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.78-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.34.16-2h4.68c.09.66.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+                ${isFirstRun ? 'Benvenuto' : 'DSTranslator'}</h2>
+                ${!isFirstRun ? `<div class="dt-close-icon" id="dt-close-btn"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z"></path></svg></div>` : ''}
             </div>
             
-            ${isFirstRun ? `<p style="font-size: 14px; margin-bottom: 24px; color: #b5bac1; line-height: 1.5;">Grazie per aver installato il Traduttore Definitivo. Prima di cominciare, <strong>imposta le tue lingue preferite</strong>. Potrai sempre cambiarle dall'icona del mappamondo vicino alla barra messaggi!</p>` : ''}
+            ${isFirstRun ? `<p style="font-size: 14px; margin-bottom: 24px; color: #b5bac1; line-height: 1.5;">Grazie per aver installato il Traduttore Definitivo. Prima di cominciare, <strong>imposta le tue preferenze</strong>. Potrai cambiarle sempre facendo Click-Destro sulle apposite icone inserite in chat!</p>` : ''}
             
-            <div class="dt-toggle-group">
-                <span class="dt-toggle-label">Ricezione Messaggi (Entrata)</span>
-                <label class="dt-switch">
-                    <input type="checkbox" id="dt-in-enable" ${globalConfig.isIncomingEnabled ? 'checked' : ''}>
-                    <span class="dt-slider"></span>
-                </label>
-            </div>
-            <div class="dt-form-group">
-                <label>Voglio leggere la chat in:</label>
-                <select class="dt-select" id="dt-in-lang">${langOptions}</select>
-            </div>
-            <div class="dt-form-group">
-                <label>Stile Visualizzazione (Lettura):</label>
-                <select class="dt-select" id="dt-read-mode">
-                    <option value="replace">Sostituzione Integrale (Testo Nativo)</option>
-                    <option value="append">Sottotitolo Tradotto (Conserva Originale)</option>
-                </select>
-            </div>
-
-            <hr style="border: 0; height: 1px; background: #1e1f22; margin: 24px 0;">
-
-            <div class="dt-toggle-group">
-                <span class="dt-toggle-label">Invio Messaggi (Uscita)</span>
-                <label class="dt-switch">
-                    <input type="checkbox" id="dt-out-enable" ${globalConfig.isOutgoingEnabled ? 'checked' : ''}>
-                    <span class="dt-slider"></span>
-                </label>
-            </div>
-            <div class="dt-form-group">
-                <label>Voglio che i miei messaggi vengano tradotti in:</label>
-                <select class="dt-select" id="dt-out-lang">${langOptions}</select>
+            <div class="dt-card">
+                <div class="dt-card-header">
+                    <div class="dt-card-title">
+                        <div class="dt-icon-box" style="color:#b5bac1;"><svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></div>
+                        <div class="dt-card-text">
+                            <h3>Ricezione (Entrata)</h3>
+                            <p>Traduci istantaneamente amici e BOT in chat.</p>
+                        </div>
+                    </div>
+                    <label class="dt-switch">
+                        <input type="checkbox" id="dt-in-enable" ${globalConfig.isIncomingEnabled ? 'checked' : ''}>
+                        <span class="dt-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="dt-form-group">
+                    <label>Lingua Destinazione (Lettura):</label>
+                    <div class="dt-select-wrapper"><select class="dt-select" id="dt-in-lang">${langOptions}</select></div>
+                </div>
+                <div class="dt-form-group">
+                    <label>Stile Visualizzazione Grafica:</label>
+                    <div class="dt-select-wrapper">
+                        <select class="dt-select" id="dt-read-mode">
+                            <option value="replace">Sostituzione Integrale (Rimpiazza l'originale)</option>
+                            <option value="append">Sottotitolo Tradotto (Conserva l'originale in piccolo)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            ${isFirstRun ? `<button id="dt-start-btn" style="width: 100%; background: #5865F2; color: #fff; border: none; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 16px; font-size: 14px; transition: background 0.2s;">Comincia ad Usarlo 🚀</button>` : ''}
+            <div class="dt-card">
+                <div class="dt-card-header">
+                    <div class="dt-card-title">
+                        <div class="dt-icon-box" style="color:#b5bac1;"><svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.18 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.78 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.91-4.33-3.56zm2.95-8H5.08c1.32-2.14 3.49-3.66 6.07-4.18-.7 1.26-1.25 2.61-1.6 4.03l-1.52.15zM12 19.96c-.83-1.18-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.78-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.34.16-2h4.68c.09.66.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg></div>
+                        <div class="dt-card-text">
+                            <h3>Invio Messaggi (Uscita)</h3>
+                            <p>Scrivi nella tua lingua e inviali tradotti all'istante.</p>
+                        </div>
+                    </div>
+                    <label class="dt-switch">
+                        <input type="checkbox" id="dt-out-enable" ${globalConfig.isOutgoingEnabled ? 'checked' : ''}>
+                        <span class="dt-slider"></span>
+                    </label>
+                </div>
+                <div class="dt-form-group">
+                    <label>Lingua Destinazione (Scrittura):</label>
+                    <div class="dt-select-wrapper"><select class="dt-select" id="dt-out-lang">${langOptions}</select></div>
+                </div>
+            </div>
+
+            ${isFirstRun ? `<button id="dt-start-btn" class="dt-start-btn">Comincia a Usare il Translator Ora 🚀</button>` : ''}
         </div>
     `;
     
@@ -394,6 +484,65 @@ function openSettingsModal(isFirstRun = false) {
     document.getElementById('dt-out-lang').value = globalConfig.targetLang;
     
     modal.style.display = 'flex';
+    
+    // Inizializza i Custom Select Boxes Premium al posto dei Select di sistema HTML base
+    document.querySelectorAll('.dt-select').forEach(originalSelect => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'dt-custom-select';
+        
+        const trigger = document.createElement('div');
+        trigger.className = 'dt-custom-select-trigger';
+        trigger.innerHTML = `<span>${originalSelect.options[originalSelect.selectedIndex].text}</span><svg viewBox="0 0 24 24"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6-1.41-1.41z"/></svg>`;
+        
+        const optsContainer = document.createElement('div');
+        optsContainer.className = 'dt-custom-select-options';
+        
+        Array.from(originalSelect.options).forEach(opt => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'dt-custom-option' + (opt.selected ? ' selected' : '');
+            optDiv.innerText = opt.text;
+            optDiv.onclick = (e) => {
+                e.stopPropagation();
+                originalSelect.value = opt.value;
+                trigger.querySelector('span').innerText = opt.text;
+                optsContainer.querySelectorAll('.dt-custom-option').forEach(n => n.classList.remove('selected'));
+                optDiv.classList.add('selected');
+                wrapper.classList.remove('open');
+                originalSelect.dispatchEvent(new Event('change'));
+            };
+            optsContainer.appendChild(optDiv);
+        });
+        
+        trigger.onclick = (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.dt-custom-select').forEach(w => { 
+                if(w !== wrapper) {
+                    w.classList.remove('open');
+                    const cCard = w.closest('.dt-card');
+                    if (cCard) { cCard.style.zIndex = '1'; cCard.style.position = 'relative'; }
+                }
+            });
+            const isOpen = wrapper.classList.toggle('open');
+            const parentCard = wrapper.closest('.dt-card');
+            if (parentCard) {
+                parentCard.style.zIndex = isOpen ? '1000' : '1';
+                parentCard.style.position = 'relative';
+            }
+        };
+        
+        wrapper.appendChild(trigger);
+        wrapper.appendChild(optsContainer);
+        originalSelect.parentNode.insertBefore(wrapper, originalSelect.nextSibling);
+    });
+    
+    // Chiudi tendina cliccando fuori
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dt-custom-select').forEach(w => {
+             w.classList.remove('open');
+             const cCard = w.closest('.dt-card');
+             if (cCard) { cCard.style.zIndex = '1'; }
+        });
+    });
 }
 
 // --- 4. INIEZIONE TASTI E COLORE BARRA CHAT ---
@@ -478,61 +627,144 @@ const chatObserver = new MutationObserver(() => injectChatButton());
 if(typeof setInterval !== 'undefined') setInterval(injectChatButton, 2000);
 
 // --- 5. LOGICA IN Entrata (INCOMING) ---
+function refreshAllTranslationsStyle() {
+    // 1. Distruggi tutti i box globali attuali
+    document.querySelectorAll('.dt-grouped-translation-box').forEach(box => box.remove());
+    
+    // 2. Trova tutti i messaggi singolarmente tradotti e ripulisci le loro classi/span interni
+    const messages = document.querySelectorAll('div[data-dt-translated="true"]');
+    messages.forEach(msg => {
+        msg.classList.remove('dt-show-translation', 'dt-show-original', 'dt-style-append', 'dt-hide-subtitle');
+        const toggleBtn = msg.querySelector('.dt-inline-toggle');
+        if (toggleBtn) toggleBtn.remove();
+        
+        const transSpanText = msg.querySelector('.dt-translated-text') || msg.querySelector('.dt-translated-large');
+        if (transSpanText) transSpanText.remove();
+        
+        const tText = msg.getAttribute('data-dt-translated-text');
+        if (tText) {
+            // Rimuoviamo il flag momentaneamente per forzare la re-iniezione senza blocchi
+            msg.removeAttribute('data-dt-translated');
+            injectIncomingTranslation(msg, tText);
+        }
+    });
+}
+
+function updateGroupTranslation(currentMsgElement) {
+    const currentLi = currentMsgElement.closest('li[id^="chat-messages-"]');
+    if (!currentLi) return;
+
+    // 1. Trova il vero inizio del gruppo logico (il messaggio con l'avatar)
+    let groupStartLi = currentLi;
+    while (groupStartLi && !groupStartLi.querySelector('div[class*="groupStart_"]')) {
+        let prev = groupStartLi.previousElementSibling;
+        if (!prev || !prev.id.startsWith('chat-messages-')) break;
+        groupStartLi = prev;
+    }
+    if (!groupStartLi) groupStartLi = currentLi;
+
+    // 2. Colleziona tutti i messaggi consecutivi da start a fine
+    let activeGroupLis = [];
+    let walker = groupStartLi;
+    while (walker) {
+        activeGroupLis.push(walker);
+        let next = walker.nextElementSibling;
+        if (!next || !next.id.startsWith('chat-messages-') || next.querySelector('div[class*="groupStart_"]')) break;
+        walker = next;
+    }
+
+    // 3. Raccogli i testi tradotti correntemente
+    let combinedHtml = '';
+    let lastLiWithTranslation = null;
+
+    activeGroupLis.forEach(li => {
+        let msgContents = li.querySelectorAll('div[id^="message-content-"]');
+        msgContents.forEach(msg => {
+             if (msg.hasAttribute('data-dt-translated-text')) {
+                 const tText = msg.getAttribute('data-dt-translated-text');
+                 combinedHtml += `<div class="dt-group-t-line">${tText}</div>`;
+                 lastLiWithTranslation = li;
+             }
+        });
+        
+        let oldBox = li.querySelector('.dt-grouped-translation-box');
+        if (oldBox) oldBox.remove();
+        let oldSingle = li.querySelector('.dt-translated-large');
+        if (oldSingle) oldSingle.remove();
+    });
+
+    if (lastLiWithTranslation && combinedHtml !== '') {
+        const groupedBox = document.createElement('div');
+        groupedBox.className = 'dt-grouped-translation-box';
+        groupedBox.innerHTML = `<div class="dt-gp-header">TRADOTTO</div><div class="dt-gp-content">${combinedHtml}</div>`;
+        
+        const lastMsgs = lastLiWithTranslation.querySelectorAll('div[id^="message-content-"]');
+        const lastMsg = lastMsgs[lastMsgs.length - 1];
+        if (lastMsg) {
+            const contentsDiv = lastMsg.closest('div[class*="contents_"]');
+            if (contentsDiv) contentsDiv.appendChild(groupedBox);
+            else lastMsg.parentElement.appendChild(groupedBox);
+        }
+    }
+}
+
 function injectIncomingTranslation(messageElement, translatedText) {
     if (!messageElement || !translatedText) return;
     if (messageElement.hasAttribute('data-dt-translated')) return;
     
     messageElement.setAttribute('data-dt-translated', 'true');
+    messageElement.setAttribute('data-dt-translated-text', translatedText);
     if (translatedText === "[Errore Rete - Non tradotto]" || translatedText.trim() === '') return;
 
     messageElement.classList.add('dt-message-wrapper');
-    if (globalConfig.readMode === 'append') {
-        messageElement.classList.add('dt-style-append');
-    } else {
-        messageElement.classList.add('dt-show-translation');
-    }
-
-    const transSpan = document.createElement('span');
-    transSpan.className = globalConfig.readMode === 'append' ? 'dt-translated-large' : 'dt-translated-text';
-    transSpan.innerText = translatedText;
-
+    
     const eyeSVG = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
     const globeSVG = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.18 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.78 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.91-4.33-3.56zm2.95-8H5.08c1.32-2.14 3.49-3.66 6.07-4.18-.7 1.26-1.25 2.61-1.6 4.03l-1.52.15zM12 19.96c-.83-1.18-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.78-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.34.16-2h4.68c.09.66.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>`;
-
     const toggleBtn = document.createElement('span');
     toggleBtn.className = 'dt-inline-toggle';
     toggleBtn.innerHTML = eyeSVG; 
     toggleBtn.title = "Mostra originale / Nascondi";
-    
-    toggleBtn.onclick = (e) => {
-        e.stopPropagation(); 
-        if (globalConfig.readMode === 'append') {
+
+    if (globalConfig.readMode === 'append') {
+        messageElement.classList.add('dt-style-append');
+        // Raccogli ed elabora tutti i messaggi del gruppo in un unico blocco
+        updateGroupTranslation(messageElement);
+        
+        // Mantieni vecchio toggle listener per consistenza
+        toggleBtn.onclick = (e) => {
+            e.stopPropagation(); 
+            const groupedBox = messageElement.closest('li').querySelector('.dt-grouped-translation-box');
             if (messageElement.classList.contains('dt-hide-subtitle')) {
                 messageElement.classList.remove('dt-hide-subtitle');
+                if (groupedBox) groupedBox.style.display = 'block';
                 toggleBtn.innerHTML = eyeSVG;
-                toggleBtn.title = "Mostra originale / Nascondi";
             } else {
                 messageElement.classList.add('dt-hide-subtitle');
+                if (groupedBox) groupedBox.style.display = 'none';
                 toggleBtn.innerHTML = globeSVG;
-                toggleBtn.title = "Ripristina lingua tradotta";
             }
-        } else {
+        };
+    } else {
+        messageElement.classList.add('dt-show-translation');
+        const transSpan = document.createElement('span');
+        transSpan.className = 'dt-translated-text';
+        transSpan.innerText = translatedText;
+        messageElement.appendChild(transSpan);
+        
+        toggleBtn.onclick = (e) => {
+            e.stopPropagation(); 
             if (messageElement.classList.contains('dt-show-translation')) {
                 messageElement.classList.remove('dt-show-translation');
                 messageElement.classList.add('dt-show-original');
                 toggleBtn.innerHTML = globeSVG;
-                toggleBtn.title = "Ripristina lingua tradotta";
             } else {
                 messageElement.classList.remove('dt-show-original');
                 messageElement.classList.add('dt-show-translation');
                 toggleBtn.innerHTML = eyeSVG;
-                toggleBtn.title = "Mostra originale / Nascondi";
             }
-        }
-    };
-    
-    // Inietta
-    messageElement.appendChild(transSpan);
+        };
+    }
+
     messageElement.appendChild(toggleBtn);
 }
 
