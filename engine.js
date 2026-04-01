@@ -36,6 +36,7 @@ const DT_LANGUAGES = [
 const DEFAULT_CONFIG = {
     sourceLang: 'it',
     targetLang: 'en',
+    readMode: 'replace',
     isOutgoingEnabled: false,
     isIncomingEnabled: true
 };
@@ -213,6 +214,7 @@ dtStyle.textContent = `
     input:checked + .dt-slider { background-color: #23a559; }
     input:checked + .dt-slider:before { transform: translateX(18px); }
 
+    /* --------- STILE SOSTITUZIONE (Modalità Replace) --------- */
     .dt-message-wrapper.dt-show-translation {
         font-size: 0 !important; line-height: 0 !important; color: transparent !important;
     }
@@ -223,14 +225,42 @@ dtStyle.textContent = `
         font-size: 1rem !important; line-height: 1.375rem !important; color: #dbdee1 !important; 
         font-style: normal; position: relative;
     }
-    /* Sottolineatura delicata per far capire che è un testo tradotto */
     .dt-message-wrapper.dt-show-translation .dt-translated-text {
         border-bottom: 1px dashed rgba(88, 101, 242, 0.4);
     }
-    
     .dt-message-wrapper.dt-show-original .dt-translated-text {
         display: none !important;
     }
+
+    /* --------- STILE SOTTOTITOLO (Modalità Append) --------- */
+    .dt-message-wrapper.dt-style-append {
+        /* Contenitore Padre */
+    }
+    /* Mute all original children but keep them visible and small */
+    .dt-message-wrapper.dt-style-append > *:not(.dt-translated-large):not(.dt-inline-toggle) {
+        font-size: 0.85rem !important;
+        opacity: 0.65;
+        transition: opacity 0.2s;
+    }
+    .dt-message-wrapper.dt-style-append > *:not(.dt-translated-large):not(.dt-inline-toggle):hover {
+        opacity: 0.95;
+    }
+    .dt-message-wrapper.dt-style-append .dt-translated-large {
+        display: block;
+        font-size: 1rem !important;
+        line-height: 1.375rem !important;
+        color: #dbdee1 !important;
+        background: rgba(43, 45, 49, 0.4);
+        padding: 6px 8px;
+        margin-top: 6px;
+        border-radius: 6px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.08);
+        border-left: 2px solid #5865F2;
+    }
+    .dt-message-wrapper.dt-style-append.dt-hide-subtitle .dt-translated-large {
+        display: none !important;
+    }
+
 
     .dt-inline-toggle {
         display: inline-flex !important; align-items: center; justify-content: center;
@@ -288,6 +318,13 @@ function buildModalUI(isFirstRun = false) {
                 <label>Voglio leggere la chat in:</label>
                 <select class="dt-select" id="dt-in-lang">${langOptions}</select>
             </div>
+            <div class="dt-form-group">
+                <label>Stile Visualizzazione (Lettura):</label>
+                <select class="dt-select" id="dt-read-mode">
+                    <option value="replace">Sostituzione Integrale (Testo Nativo)</option>
+                    <option value="append">Sottotitolo Tradotto (Conserva Originale)</option>
+                </select>
+            </div>
 
             <hr style="border: 0; height: 1px; background: #1e1f22; margin: 24px 0;">
 
@@ -310,12 +347,14 @@ function buildModalUI(isFirstRun = false) {
     if (document.body) document.body.appendChild(overlay);
     
     document.getElementById('dt-in-lang').value = globalConfig.sourceLang;
+    document.getElementById('dt-read-mode').value = globalConfig.readMode || 'replace';
     document.getElementById('dt-out-lang').value = globalConfig.targetLang;
     
     const saveChanges = () => {
         saveConfig({
             isIncomingEnabled: document.getElementById('dt-in-enable').checked,
             sourceLang: document.getElementById('dt-in-lang').value,
+            readMode: document.getElementById('dt-read-mode').value,
             isOutgoingEnabled: document.getElementById('dt-out-enable').checked,
             targetLang: document.getElementById('dt-out-lang').value
         });
@@ -335,6 +374,7 @@ function buildModalUI(isFirstRun = false) {
     
     document.getElementById('dt-in-enable').onchange = saveChanges;
     document.getElementById('dt-in-lang').onchange = saveChanges;
+    document.getElementById('dt-read-mode').onchange = saveChanges;
     document.getElementById('dt-out-enable').onchange = saveChanges;
     document.getElementById('dt-out-lang').onchange = saveChanges;
 }
@@ -350,6 +390,7 @@ function openSettingsModal(isFirstRun = false) {
     document.getElementById('dt-in-enable').checked = globalConfig.isIncomingEnabled;
     document.getElementById('dt-out-enable').checked = globalConfig.isOutgoingEnabled;
     document.getElementById('dt-in-lang').value = globalConfig.sourceLang;
+    document.getElementById('dt-read-mode').value = globalConfig.readMode || 'replace';
     document.getElementById('dt-out-lang').value = globalConfig.targetLang;
     
     modal.style.display = 'flex';
@@ -445,10 +486,14 @@ function injectIncomingTranslation(messageElement, translatedText) {
     if (translatedText === "[Errore Rete - Non tradotto]" || translatedText.trim() === '') return;
 
     messageElement.classList.add('dt-message-wrapper');
-    messageElement.classList.add('dt-show-translation');
+    if (globalConfig.readMode === 'append') {
+        messageElement.classList.add('dt-style-append');
+    } else {
+        messageElement.classList.add('dt-show-translation');
+    }
 
     const transSpan = document.createElement('span');
-    transSpan.className = 'dt-translated-text';
+    transSpan.className = globalConfig.readMode === 'append' ? 'dt-translated-large' : 'dt-translated-text';
     transSpan.innerText = translatedText;
 
     const eyeSVG = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>`;
@@ -461,16 +506,28 @@ function injectIncomingTranslation(messageElement, translatedText) {
     
     toggleBtn.onclick = (e) => {
         e.stopPropagation(); 
-        if (messageElement.classList.contains('dt-show-translation')) {
-            messageElement.classList.remove('dt-show-translation');
-            messageElement.classList.add('dt-show-original');
-            toggleBtn.innerHTML = globeSVG;
-            toggleBtn.title = "Ripristina lingua tradotta";
+        if (globalConfig.readMode === 'append') {
+            if (messageElement.classList.contains('dt-hide-subtitle')) {
+                messageElement.classList.remove('dt-hide-subtitle');
+                toggleBtn.innerHTML = eyeSVG;
+                toggleBtn.title = "Mostra originale / Nascondi";
+            } else {
+                messageElement.classList.add('dt-hide-subtitle');
+                toggleBtn.innerHTML = globeSVG;
+                toggleBtn.title = "Ripristina lingua tradotta";
+            }
         } else {
-            messageElement.classList.remove('dt-show-original');
-            messageElement.classList.add('dt-show-translation');
-            toggleBtn.innerHTML = eyeSVG;
-            toggleBtn.title = "Mostra originale / Nascondi";
+            if (messageElement.classList.contains('dt-show-translation')) {
+                messageElement.classList.remove('dt-show-translation');
+                messageElement.classList.add('dt-show-original');
+                toggleBtn.innerHTML = globeSVG;
+                toggleBtn.title = "Ripristina lingua tradotta";
+            } else {
+                messageElement.classList.remove('dt-show-original');
+                messageElement.classList.add('dt-show-translation');
+                toggleBtn.innerHTML = eyeSVG;
+                toggleBtn.title = "Mostra originale / Nascondi";
+            }
         }
     };
     
