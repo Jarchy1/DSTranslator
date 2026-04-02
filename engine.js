@@ -835,7 +835,7 @@ function updateGroupTranslation(currentMsgElement) {
 
 function injectIncomingTranslation(messageElement, translatedText) {
     if (!messageElement || !translatedText) return;
-    if (messageElement.hasAttribute('data-dt-translated')) return;
+    if (messageElement.getAttribute('data-dt-translated') === 'true') return;
     
     messageElement.setAttribute('data-dt-translated', 'true');
     messageElement.setAttribute('data-dt-translated-text', translatedText);
@@ -899,11 +899,20 @@ async function handleMessageNode(node) {
     if (node.nodeType === 1 && node.id && node.id.startsWith('message-content-')) {
         // FIX BUGOGRAFICO: Evitiamo di tradurre e iniettare i tasti sulle citazioni in miniatura delle risposte.
         if (node.closest('[class*="repliedMessage_"]') || node.closest('[class*="repliedTextPreview"]') || node.closest('[class*="repliedTextContent"]')) {
+             // Se è una risposta, puliamo eventuali rimasugli di classi dt- per sicurezza
+             node.classList.remove('dt-show-translation', 'dt-show-original', 'dt-message-wrapper', 'dt-style-append', 'dt-hide-subtitle');
              return;
         }
         
-        const textContent = node.innerText || node.textContent;
-        if (textContent.trim().length > 0 && !node.hasAttribute('data-dt-translated')) {
+        const ourEls = node.querySelectorAll('.dt-translated-text, .dt-inline-toggle, .dt-grouped-translation-box');
+        ourEls.forEach(el => el.style.display = 'none');
+        const textContent = (node.innerText || node.textContent).trim();
+        ourEls.forEach(el => el.style.display = '');
+
+        if (textContent.length > 0 && !node.hasAttribute('data-dt-translated')) {
+            node.setAttribute('data-dt-translated', 'pending');
+            node.setAttribute('data-dt-original-text', textContent);
+            
             const translated = await translateText(textContent, globalConfig.sourceLang, 'auto');
             if(translated.toLowerCase().trim() !== textContent.toLowerCase().trim()) {
                  injectIncomingTranslation(node, translated);
@@ -919,10 +928,73 @@ async function handleMessageNode(node) {
 
 const msgObserver = new MutationObserver((mutations) => {
     if (!globalConfig.isIncomingEnabled) return;
+    
+    let nodesToProcess = new Set();
+    
     mutations.forEach((mutation) => {
+        // Analisi di nuovi messaggi aggiunti sulla chat
         mutation.addedNodes.forEach((node) => {
-            handleMessageNode(node);
+            if (node.nodeType === 1) {
+                if (node.id && node.id.startsWith('message-content-')) {
+                    nodesToProcess.add(node);
+                } else if (node.querySelector) {
+                    node.querySelectorAll('[id^="message-content-"]').forEach(n => nodesToProcess.add(n));
+                }
+            }
         });
+        
+        // Analisi di Edizioni/Modifiche su messaggi pre-esistenti
+        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+             let msgNode = null;
+             if (mutation.target.nodeType === 1) {
+                 msgNode = mutation.target.closest('[id^="message-content-"]');
+             } else if (mutation.target.parentElement) {
+                 msgNode = mutation.target.parentElement.closest('[id^="message-content-"]');
+             }
+             
+             if (msgNode) {
+                 let isOurInjection = false;
+                 if (mutation.addedNodes) {
+                     mutation.addedNodes.forEach(n => {
+                         if (n.nodeType === 1 && (n.classList.contains('dt-translated-text') || n.classList.contains('dt-inline-toggle') || n.classList.contains('dt-grouped-translation-box'))) {
+                             isOurInjection = true;
+                         }
+                     });
+                 }
+                 
+                 // Se è un input puro o colpa di Discord (delay-load testo o Tasto Destro -> Modifica Messaggio)
+                 if (!isOurInjection) {
+                     if (!msgNode.hasAttribute('data-dt-translated')) {
+                         // Discord ha inserito del testo in ritardo in un div originariamente vuoto
+                         nodesToProcess.add(msgNode);
+                     } else if (msgNode.getAttribute('data-dt-translated') !== 'pending') {
+                         
+                         // Discord ha originato una mutazione. Verifichiamo se il testo originario è TANGIBILMENTE cambiato
+                         const ourEls = msgNode.querySelectorAll('.dt-translated-text, .dt-inline-toggle, .dt-grouped-translation-box');
+                         ourEls.forEach(el => el.style.display = 'none');
+                         const currentPureText = (msgNode.innerText || msgNode.textContent).trim();
+                         ourEls.forEach(el => el.style.display = '');
+                         
+                         if (currentPureText !== msgNode.getAttribute('data-dt-original-text')) {
+                             // Modifica attiva su un messaggio confermata: azzeriamo e ritraduciamo
+                             msgNode.removeAttribute('data-dt-translated');
+                             // Pulizia totale delle classi grafiche per rendere il testo originale subito visibile
+                             msgNode.classList.remove('dt-show-translation', 'dt-show-original', 'dt-message-wrapper', 'dt-style-append', 'dt-hide-subtitle');
+                             // Distruzione selettiva delle vecchie traduzioni per purificare l'innerText nativo
+                             msgNode.querySelectorAll('.dt-translated-text, .dt-inline-toggle, .dt-grouped-translation-box').forEach(el => el.remove());
+                             nodesToProcess.add(msgNode);
+                         }
+                     }
+                 }
+             }
+        }
+    });
+
+    // Innesco Traduzione di massa fuori dal Foreach per evitare ingorghi su messaggi raggruppati
+    nodesToProcess.forEach(node => {
+        if (!node.hasAttribute('data-dt-translated')) {
+            handleMessageNode(node);
+        }
     });
 });
 
@@ -1009,7 +1081,7 @@ if (typeof window.fetch !== 'undefined') {
 setTimeout(() => {
     if (document.getElementById('app-mount') || document.body) {
         const targetObj = document.getElementById('app-mount') || document.body;
-        msgObserver.observe(targetObj, { childList: true, subtree: true });
+        msgObserver.observe(targetObj, { childList: true, subtree: true, characterData: true });
         if(typeof chatObserver !== 'undefined') chatObserver.observe(targetObj, { childList: true, subtree: true });
         
         document.querySelectorAll('[id^="message-content-"]').forEach(handleMessageNode);
