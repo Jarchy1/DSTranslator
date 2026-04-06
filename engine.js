@@ -1,7 +1,4 @@
 // [DiscordTranslator] Rendering Context Engine V7.0 (Network HTTP Interceptor)
-if (window.__OVERLAY__ || window.location.href.includes('overlay')) {
-    throw new Error('[DiscordTranslator] Overlay process detected. Halting execution to prevent game UI interference.');
-}
 console.log('%c[DiscordTranslator] 🚀 Engine V7 (HTTP Network Engine) Attivo!', 'color: #5865F2; font-size: 16px; font-weight: bold;');
 
 const DT_LANGUAGES = [
@@ -1135,7 +1132,13 @@ setTimeout(() => {
         setTimeout(() => {
              let isTutorialDone = false;
              try { if(typeof localStorage !== 'undefined') isTutorialDone = !!localStorage.getItem('dt_tutorial_done'); } catch(e){}
-             if(!isTutorialDone) {
+             
+             // Il game overlay carica un webContents separato con LocalStorage spesso isolato/effimero.
+             // Per evitare che il popup riappaia all'infinito dentro ai giochi, ci assicuriamo di essere
+             // nella "vera" finestra di Discord verificando la presenza della barra dei server (guilds).
+             const isMainAppUI = document.querySelector('nav[class*="guilds_"]') || document.querySelector('div[class*="sidebar_"]');
+             
+             if (!isTutorialDone && isMainAppUI) {
                   openSettingsModal(true);
              }
         }, 1000);
