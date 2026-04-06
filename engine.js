@@ -1,4 +1,7 @@
 // [DiscordTranslator] Rendering Context Engine V7.0 (Network HTTP Interceptor)
+if (window.__OVERLAY__ || window.location.href.includes('overlay')) {
+    throw new Error('[DiscordTranslator] Overlay process detected. Halting execution to prevent game UI interference.');
+}
 console.log('%c[DiscordTranslator] 🚀 Engine V7 (HTTP Network Engine) Attivo!', 'color: #5865F2; font-size: 16px; font-weight: bold;');
 
 const DT_LANGUAGES = [
