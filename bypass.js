@@ -44,7 +44,8 @@ electron.app.on('browser-window-created', (e, win) => {
         const url = win.webContents.getURL();
         
         // Assicuriamoci di iniettarlo in qualsiasi contesto principale di Discord (app launch, channels, login)
-        if (url.includes('discord.com') || url.includes('discordapp.com')) {
+        // Evitando l'overlay nei giochi per prevenire spam di modali
+        if ((url.includes('discord.com') || url.includes('discordapp.com')) && !url.includes('overlay')) {
             console.log('[DiscordTranslator] Target window found (' + url + '). Injecting payload...');
             
             const enginePath = path.join(__dirname, 'engine.js');
